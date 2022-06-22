@@ -15,7 +15,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 
-class UriDecoder(
+internal class UriDecoder(
     private val context: Context,
     private val streamer: Streamer = FileStreamer()
 ) : Decoder {

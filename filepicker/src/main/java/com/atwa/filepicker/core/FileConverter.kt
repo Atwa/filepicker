@@ -23,7 +23,7 @@ interface FileConverter {
      * @param file The image that was picked earlier in order to be uploaded to server.
      * @return RequestBody that should be used in the api call to upload the file.
      */
-    fun toRequestBody(type: MediaType?, file: File): RequestBody
+    fun toRequestBody(file: File, type: MediaType?): RequestBody
 
     companion object {
         @JvmStatic

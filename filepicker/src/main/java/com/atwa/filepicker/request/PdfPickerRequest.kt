@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class PdfPickerRequest(
+internal class PdfPickerRequest(
     private val decoder: Decoder,
     private val onPdfPicked: (Pair<String?, File?>?) -> Unit
 ) : PickerRequest {

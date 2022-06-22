@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class ImagePickerRequest(
+internal class ImagePickerRequest(
     private val decoder: Decoder,
     private val onImagePicked: (Pair<Bitmap?, File?>?) -> Unit
 ) : PickerRequest {

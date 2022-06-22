@@ -14,11 +14,11 @@ import com.atwa.filepicker.request.PickerRequest
 import kotlinx.coroutines.launch
 import java.io.File
 
-class StorageFilePicker : FilePicker {
+internal class StorageFilePicker : FilePicker {
 
     private lateinit var activity: AppCompatActivity
     private lateinit var pickerRequest: PickerRequest
-    private val Decoder: Decoder by lazy { UriDecoder(activity.baseContext) }
+    private val decoder: Decoder by lazy { UriDecoder(activity.baseContext) }
 
     private val filePickerLauncher by lazy {
         activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -28,19 +28,19 @@ class StorageFilePicker : FilePicker {
 
     override fun pickImage(activity: AppCompatActivity, onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
         this.activity = activity
-        pickerRequest = ImagePickerRequest(Decoder,onImagePicked)
+        pickerRequest = ImagePickerRequest(decoder,onImagePicked)
         initialize()
     }
 
     override fun pickPdf(activity: AppCompatActivity, onPdfPicked: (Pair<String?, File?>?) -> Unit) {
         this.activity = activity
-        pickerRequest = PdfPickerRequest(Decoder,onPdfPicked)
+        pickerRequest = PdfPickerRequest(decoder,onPdfPicked)
         initialize()
     }
 
     override fun pickFile(activity: AppCompatActivity,onFilePicked: (Pair<String?, File?>?) -> Unit) {
         this.activity = activity
-        pickerRequest = FilePickerRequest(Decoder,onFilePicked)
+        pickerRequest = FilePickerRequest(decoder,onFilePicked)
         initialize()
     }
 

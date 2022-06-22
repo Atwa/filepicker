@@ -14,7 +14,7 @@ interface FilePicker {
      * @param activity Required to launch the picker intent.
      * @param onImagePicked Callback to receive the picker image result.
      */
-    fun pickImage(activity: AppCompatActivity,onImagePicked: (Pair<Bitmap?, File?>?) -> Unit)
+    fun pickImage(activity: AppCompatActivity, onImagePicked: (Pair<Bitmap?, File?>?) -> Unit)
 
     /**
      * launching intent for picking pdf files.

@@ -5,7 +5,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-class FileStreamer : Streamer {
+internal class FileStreamer : Streamer {
 
     companion object {
         private const val BASE_BUFFER_SIZE = 4096
