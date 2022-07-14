@@ -8,9 +8,9 @@ made in uploading them to server without the need to ask use for a single permis
 
 ## Features:
 
--Launch different file types picking intents/requests (Image, Pdf and File for general). -Get a
-callback with bitmap in case of image alongside with file object. -Get a callback with a fileName in
-case of Pdf & File alongside with file object. 
+-Launch different file types picking intents/requests (Image, Pdf and File for general). 
+-Get a callback with bitmap in case of image alongside with file object. 
+-Get a callback with a fileName in case of Pdf & File alongside with file object. 
 -Convert picked up files to request bodies to use them with api requests to upload them to server, -Not a single permission is required.
 
 ## Dependency :
