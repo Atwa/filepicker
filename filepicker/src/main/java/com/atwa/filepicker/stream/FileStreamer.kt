@@ -8,7 +8,7 @@ import java.io.OutputStream
 internal class FileStreamer : Streamer {
 
     companion object {
-        private const val BASE_BUFFER_SIZE = 4096
+        private const val BASE_BUFFER_SIZE = 8192
     }
 
     override fun copyFile(inputStream: InputStream, outputStream: OutputStream) {

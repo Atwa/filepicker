@@ -26,7 +26,7 @@ them with api requests to upload them to server, -Not a single permission is req
 
   ```
   dependencies {
-	    implementation 'com.github.Atwa:FilePicker:1.0.0'
+	    implementation 'com.github.Atwa:FilePicker:1.0.1'
 	}
   ```
 
@@ -67,6 +67,13 @@ them with api requests to upload them to server, -Not a single permission is req
             .toRequestBody(FileConverter.getInstance().fileMediaType, file)
     }
   ```
+  
+### Version history
+| Version | Release note |
+| ------  | ------------- |
+| 1.0.0   | Initial release  |
+| 1.0.1   | Increase buffer size to handle larger files (8GB Max)  |
+
 
 ### Contribution
 
