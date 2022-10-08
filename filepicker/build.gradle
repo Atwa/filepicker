@@ -44,7 +44,7 @@ afterEvaluate {
 
                 groupId = 'com.github.atwa'
                 artifactId = 'filepicker'
-                version = '0.0.0'
+                version = '1.0.3'
             }
         }
         repositories {
