@@ -7,3 +7,7 @@ plugins {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+dependencies {
+    project(':filepicker')
+}

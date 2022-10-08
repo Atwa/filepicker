@@ -34,14 +34,17 @@ android {
     }
 }
 
-group 'com.github.atwa'
-version '1.0.2-SNAPSHOT'
+
 
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+                from components.release
+
+                groupId = 'com.github.atwa'
+                artifactId = 'filepicker'
+                version = '0.0.0'
             }
         }
         repositories {
