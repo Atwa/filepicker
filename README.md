@@ -26,16 +26,20 @@ made in uploading them to server without the need to ask use for a single permis
 
   ```
   dependencies {
-	    implementation 'com.github.Atwa:FilePicker:1.0.1'
+	    implementation 'com.github.Atwa:Android-FilePicker:1.0.1'
 	}
   ```
 
 ## Usage :
+- Initialize instance in activity whether as member variable or in onCreate()
+  ```
+  private val filePicker = FilePicker.getInstance(this)
+  ```
 
 - Image picking
   ```
   fun pickImage() {
-        FilePicker.getInstance().pickImage(this) { result ->
+        filePicker.pickImage(this) { result ->
             val bitmap : Bitmap? = result?.first
             val file : File? = result?.second
         }
@@ -44,7 +48,7 @@ made in uploading them to server without the need to ask use for a single permis
 - Pdf picking
   ```
   fun pickPdf() {
-        FilePicker.getInstance().pickPdf(this) { result ->
+        filePicker.pickPdf(this) { result ->
             val name: String? = result?.first
             val file: File? = result?.second
         }
@@ -53,7 +57,7 @@ made in uploading them to server without the need to ask use for a single permis
 - File picking
   ```
   fun pickFile() {
-        FilePicker.getInstance().pickFile(this) { result ->
+        filePicker.pickFile(this) { result ->
             val name : String? = result?.first
             val file : File? = result?.second
         }
@@ -73,6 +77,7 @@ made in uploading them to server without the need to ask use for a single permis
 | ------  | ------------- |
 | 1.0.0   | Initial release  |
 | 1.0.1   | Increase buffer size to handle larger files (8GB Max)  |
+| 1.0.2   | Fix bug : LifecycleOwner Activity is attempting to register while current state is RESUMED.  |
 
 
 ### Contribution
