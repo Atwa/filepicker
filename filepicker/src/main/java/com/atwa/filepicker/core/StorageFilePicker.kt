@@ -14,33 +14,28 @@ import com.atwa.filepicker.request.PickerRequest
 import kotlinx.coroutines.launch
 import java.io.File
 
-internal class StorageFilePicker : FilePicker {
+internal class StorageFilePicker(private val activity: AppCompatActivity) : FilePicker {
 
-    private lateinit var activity: AppCompatActivity
     private lateinit var pickerRequest: PickerRequest
     private val decoder: Decoder by lazy { UriDecoder(activity.baseContext) }
 
-    private val filePickerLauncher by lazy {
+    private val filePickerLauncher =
         activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result?.data?.data?.let { processFile(it) }
         }
-    }
 
-    override fun pickImage(activity: AppCompatActivity, onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
-        this.activity = activity
-        pickerRequest = ImagePickerRequest(decoder,onImagePicked)
+    override fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
+        pickerRequest = ImagePickerRequest(decoder, onImagePicked)
         initialize()
     }
 
-    override fun pickPdf(activity: AppCompatActivity, onPdfPicked: (Pair<String?, File?>?) -> Unit) {
-        this.activity = activity
-        pickerRequest = PdfPickerRequest(decoder,onPdfPicked)
+    override fun pickPdf(onPdfPicked: (Pair<String?, File?>?) -> Unit) {
+        pickerRequest = PdfPickerRequest(decoder, onPdfPicked)
         initialize()
     }
 
-    override fun pickFile(activity: AppCompatActivity,onFilePicked: (Pair<String?, File?>?) -> Unit) {
-        this.activity = activity
-        pickerRequest = FilePickerRequest(decoder,onFilePicked)
+    override fun pickFile(onFilePicked: (Pair<String?, File?>?) -> Unit) {
+        pickerRequest = FilePickerRequest(decoder, onFilePicked)
         initialize()
     }
 
@@ -53,11 +48,5 @@ internal class StorageFilePicker : FilePicker {
             pickerRequest.invokeCallback(uri)
         }
     }
-
-    companion object {
-        @JvmStatic
-        val instance: StorageFilePicker by lazy { StorageFilePicker() }
-    }
-
 
 }
