@@ -11,8 +11,15 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
-
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Atwa/Android-FilePicker")
+            credentials {
+                username = System.getenv("GITHUB_USER_NAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
-rootProject.name = "Android FilePicker"
+rootProject.name = "filepicker"
 include ':filepicker'
