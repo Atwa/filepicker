@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.atwa.filepicker.decoder.Decoder
 import com.atwa.filepicker.decoder.UriDecoder
+import com.atwa.filepicker.request.*
 import com.atwa.filepicker.request.FilePickerRequest
+import com.atwa.filepicker.request.ImageCameraRequest
 import com.atwa.filepicker.request.ImagePickerRequest
 import com.atwa.filepicker.request.PdfPickerRequest
 import com.atwa.filepicker.request.PickerRequest
@@ -18,6 +20,7 @@ import java.lang.ref.WeakReference
 internal class StorageFilePicker(private val activity: WeakReference<AppCompatActivity>) : FilePicker {
 
     private lateinit var pickerRequest: PickerRequest
+    private lateinit var cameraRequest: ImageCameraRequest
     private val decoder: Decoder by lazy { UriDecoder(activity.get()?.applicationContext) }
 
     private val filePickerLauncher =
@@ -25,9 +28,19 @@ internal class StorageFilePicker(private val activity: WeakReference<AppCompatAc
             result?.data?.data?.let { processFile(it) }
         }
 
+    private val cameraCaptureLauncher =
+        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            (result.data?.extras?.get("data") as? Bitmap)?.let { processBitmap(it) }
+        }
+
     override fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
         pickerRequest = ImagePickerRequest(decoder, onImagePicked)
         initialize()
+    }
+
+    override fun captureCameraImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
+        cameraRequest = ImageCameraRequest(decoder, onImagePicked)
+        cameraCaptureLauncher?.launch(cameraRequest.intent)
     }
 
     override fun pickPdf(onPdfPicked: (Pair<String?, File?>?) -> Unit) {
@@ -47,6 +60,12 @@ internal class StorageFilePicker(private val activity: WeakReference<AppCompatAc
     private fun processFile(uri: Uri) {
         activity.get()?.lifecycleScope?.launchWhenResumed {
             pickerRequest.invokeCallback(uri)
+        }
+    }
+
+    private fun processBitmap(bitmap: Bitmap) {
+        activity.get()?.lifecycleScope?.launchWhenResumed {
+            cameraRequest.invokeCameraCallback(bitmap)
         }
     }
 
