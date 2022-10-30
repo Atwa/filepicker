@@ -26,7 +26,7 @@ them with api requests to upload them to server, -Not a single permission is req
 
   ```
   dependencies {
-	    implementation 'com.github.Atwa:filepicker:1.0.3'
+	    implementation 'com.github.Atwa:Android-FilePicker:1.0.4'
 	}
   ```
 
