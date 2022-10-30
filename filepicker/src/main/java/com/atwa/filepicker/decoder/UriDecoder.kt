@@ -7,13 +7,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeFileDescriptor
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.atwa.filepicker.stream.Streamer
 import com.atwa.filepicker.stream.FileStreamer
+import com.atwa.filepicker.stream.Streamer
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 internal class UriDecoder(
     private val context: Context?,
@@ -57,6 +58,11 @@ internal class UriDecoder(
             null
         }
         emit(result)
+    }
+
+    override fun createCameraOutputUri(): Uri {
+        val timeStamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+        return Uri.parse("${context?.cacheDir}$timeStamp")
     }
 
 

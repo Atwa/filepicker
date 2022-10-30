@@ -9,4 +9,5 @@ internal interface Decoder {
     fun getStorageImage(imageUri: Uri?): Flow<Pair<Bitmap?, File?>?>
     fun getStoragePDF(pdfUri: Uri?): Flow<Pair<String?, File>?>
     fun getStorageFile(pdfUri: Uri?): Flow<Pair<String?, File>?>
+    fun createCameraOutputUri() : Uri
 }
