@@ -78,8 +78,7 @@ them with api requests to upload them to server, -Not a single permission is req
 | 1.0.0   | Initial release  |
 | 1.0.1   | Increase buffer size to handle larger files (8GB Max)  |
 | 1.0.3   | Fix bug : LifecycleOwner Activity is attempting to register while current state is RESUMED.  |
-| 1.0.4   | Enhancement : Avoid possible activity reference leaking
-            Feature : Implement camera image picker.  |
+| 1.0.4   | Enhancement : Avoid possible activity reference leaking Feature <br /> Implement camera image picker.  |
   
 
 
