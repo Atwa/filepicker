@@ -20,11 +20,17 @@ import java.lang.ref.WeakReference
 internal class StorageFilePicker(private val activity: WeakReference<AppCompatActivity>) : FilePicker {
 
     private lateinit var pickerRequest: PickerRequest
+    private lateinit var cameraRequest: ImageCameraRequest
     private val decoder: Decoder by lazy { UriDecoder(activity.get()?.applicationContext) }
 
     private val filePickerLauncher =
         activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result?.data?.data?.let { processFile(it) }
+        }
+
+    private val cameraCaptureLauncher =
+        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            (result.data?.extras?.get("data") as? Bitmap)?.let { processBitmap(it) }
         }
 
     override fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
@@ -33,8 +39,8 @@ internal class StorageFilePicker(private val activity: WeakReference<AppCompatAc
     }
 
     override fun captureCameraImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
-        pickerRequest = ImageCameraRequest(decoder, onImagePicked)
-        initialize()
+        cameraRequest = ImageCameraRequest(decoder, onImagePicked)
+        cameraCaptureLauncher?.launch(cameraRequest.intent)
     }
 
     override fun pickPdf(onPdfPicked: (Pair<String?, File?>?) -> Unit) {
@@ -54,6 +60,12 @@ internal class StorageFilePicker(private val activity: WeakReference<AppCompatAc
     private fun processFile(uri: Uri) {
         activity.get()?.lifecycleScope?.launchWhenResumed {
             pickerRequest.invokeCallback(uri)
+        }
+    }
+
+    private fun processBitmap(bitmap: Bitmap) {
+        activity.get()?.lifecycleScope?.launchWhenResumed {
+            cameraRequest.invokeCameraCallback(bitmap)
         }
     }
 

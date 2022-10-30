@@ -9,12 +9,12 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.atwa.filepicker.stream.FileStreamer
 import com.atwa.filepicker.stream.Streamer
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
+
 
 internal class UriDecoder(
     private val context: Context?,
@@ -60,11 +60,30 @@ internal class UriDecoder(
         emit(result)
     }
 
-    override fun createCameraOutputUri(): Uri {
-        val timeStamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
-        return Uri.parse("${context?.cacheDir}$timeStamp")
+    override fun saveStorageImage(bitmap: Bitmap): Flow<Pair<Bitmap?, File>?> = flow {
+        val result = try {
+            getFile(bitmap)
+        } catch (ex: IOException) {
+            println(ex.message)
+            null
+        }
+        emit(result)
     }
 
+    private fun getFile(bitmap: Bitmap): Pair<Bitmap, File> {
+        val fileName = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+        val imageFile = File(context?.cacheDir, fileName)
+
+        val byteArray = (bitmap.allocationByteCount * bitmap.height).run {
+            ByteBuffer.allocate(this)
+        }.apply { bitmap.copyPixelsToBuffer(this) }.array()
+
+        val byteStream = ByteArrayInputStream(byteArray)
+        val outputStream = FileOutputStream(imageFile)
+
+        streamer.copyFile(byteStream, outputStream)
+        return Pair(bitmap, imageFile)
+    }
 
     private fun getBitMap(): Pair<Bitmap?, File?>? {
         return uri?.let { uri ->
