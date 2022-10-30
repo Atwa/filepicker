@@ -16,7 +16,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 internal class UriDecoder(
-    private val context: Context,
+    private val context: Context?,
     private val streamer: Streamer = FileStreamer()
 ) : Decoder {
 
@@ -25,7 +25,7 @@ internal class UriDecoder(
 
     override fun getStorageImage(imageUri: Uri?) = flow {
         this@UriDecoder.uri = imageUri
-        this@UriDecoder.contentResolver = context.contentResolver
+        this@UriDecoder.contentResolver = context?.contentResolver
         val result = try {
             getBitMap()
         } catch (ex: IOException) {
@@ -37,7 +37,7 @@ internal class UriDecoder(
 
     override fun getStoragePDF(pdfUri: Uri?) = flow {
         this@UriDecoder.uri = pdfUri
-        this@UriDecoder.contentResolver = context.contentResolver
+        this@UriDecoder.contentResolver = context?.contentResolver
         val result = try {
             getFile()
         } catch (ex: IOException) {
@@ -49,7 +49,7 @@ internal class UriDecoder(
 
     override fun getStorageFile(pdfUri: Uri?) = flow {
         this@UriDecoder.uri = pdfUri
-        this@UriDecoder.contentResolver = context.contentResolver
+        this@UriDecoder.contentResolver = context?.contentResolver
         val result = try {
             getFile()
         } catch (ex: IOException) {
@@ -66,7 +66,7 @@ internal class UriDecoder(
                 val inputStream = FileInputStream(pfd.fileDescriptor)
                 val bitmap = decodeFileDescriptor(pfd.fileDescriptor)
                 val name = getFileName() ?: "file"
-                val imageFile = File(context.cacheDir, name)
+                val imageFile = File(context?.cacheDir, name)
                 val outputStream = FileOutputStream(imageFile)
                 streamer.copyFile(inputStream, outputStream)
                 Pair(bitmap, imageFile)
@@ -80,7 +80,7 @@ internal class UriDecoder(
                 val pfd = contentResolver?.openFileDescriptor(pdfUri, "r")
                 val inputStream = FileInputStream(pfd?.fileDescriptor)
                 val name = getFileName() ?: "file"
-                val pdfFile = File(context.cacheDir, name)
+                val pdfFile = File(context?.cacheDir, name)
                 val outputStream = FileOutputStream(pdfFile)
                 streamer.copyFile(inputStream, outputStream)
                 Pair(name, pdfFile)
