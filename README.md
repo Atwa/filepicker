@@ -67,7 +67,7 @@ them with api requests to upload them to server, -Not a single permission is req
   ```
   fun captureImage() {
         filePicker.captureCameraImage() { result ->
-            val name : String? = result?.first
+            val bitmap : Bitmap? = result?.first
             val file : File? = result?.second
         }
     }
