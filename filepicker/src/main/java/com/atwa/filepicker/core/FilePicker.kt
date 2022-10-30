@@ -17,6 +17,15 @@ interface FilePicker {
     fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit)
 
     /**
+     * launching intent for picking images from gallery.
+     * This method should be called from activity and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onImagePicked Callback to receive the picker gallery image result.
+     */
+    fun captureCameraImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit)
+
+    /**
      * launching intent for picking pdf files.
      * This method should be called from activity and the result will be provided in the callback.
      *

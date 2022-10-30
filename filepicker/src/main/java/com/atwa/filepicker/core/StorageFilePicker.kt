@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.atwa.filepicker.decoder.Decoder
 import com.atwa.filepicker.decoder.UriDecoder
+import com.atwa.filepicker.request.*
 import com.atwa.filepicker.request.FilePickerRequest
+import com.atwa.filepicker.request.ImageCameraRequest
 import com.atwa.filepicker.request.ImagePickerRequest
 import com.atwa.filepicker.request.PdfPickerRequest
 import com.atwa.filepicker.request.PickerRequest
@@ -27,6 +29,11 @@ internal class StorageFilePicker(private val activity: WeakReference<AppCompatAc
 
     override fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
         pickerRequest = ImagePickerRequest(decoder, onImagePicked)
+        initialize()
+    }
+
+    override fun captureCameraImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
+        pickerRequest = ImageCameraRequest(decoder, onImagePicked)
         initialize()
     }
 
