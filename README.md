@@ -39,7 +39,7 @@ them with api requests to upload them to server, -Not a single permission is req
 - Image picking
   ```
   fun pickImage() {
-        filePicker.pickImage(this) { result ->
+        filePicker.pickImage() { result ->
             val bitmap : Bitmap? = result?.first
             val file : File? = result?.second
         }
@@ -48,7 +48,7 @@ them with api requests to upload them to server, -Not a single permission is req
 - Pdf picking
   ```
   fun pickPdf() {
-        filePicker.pickPdf(this) { result ->
+        filePicker.pickPdf() { result ->
             val name: String? = result?.first
             val file: File? = result?.second
         }
@@ -57,7 +57,16 @@ them with api requests to upload them to server, -Not a single permission is req
 - File picking
   ```
   fun pickFile() {
-        filePicker.pickFile(this) { result ->
+        filePicker.pickFile() { result ->
+            val name : String? = result?.first
+            val file : File? = result?.second
+        }
+    }
+  ```
+- Image capture  
+  ```
+  fun captureImage() {
+        filePicker.captureCameraImage() { result ->
             val name : String? = result?.first
             val file : File? = result?.second
         }
