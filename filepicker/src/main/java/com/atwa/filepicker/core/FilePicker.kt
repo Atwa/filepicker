@@ -3,6 +3,7 @@ package com.atwa.filepicker.core
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
+import java.lang.ref.WeakReference
 
 interface FilePicker {
 
@@ -35,6 +36,7 @@ interface FilePicker {
 
     companion object {
         @JvmStatic
-        fun getInstance(activity: AppCompatActivity): FilePicker = StorageFilePicker(activity)
+        fun getInstance(activity: AppCompatActivity): FilePicker =
+            StorageFilePicker(WeakReference(activity))
     }
 }

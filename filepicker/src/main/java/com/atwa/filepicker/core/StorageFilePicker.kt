@@ -13,14 +13,15 @@ import com.atwa.filepicker.request.PdfPickerRequest
 import com.atwa.filepicker.request.PickerRequest
 import kotlinx.coroutines.launch
 import java.io.File
+import java.lang.ref.WeakReference
 
-internal class StorageFilePicker(private val activity: AppCompatActivity) : FilePicker {
+internal class StorageFilePicker(private val activity: WeakReference<AppCompatActivity>) : FilePicker {
 
     private lateinit var pickerRequest: PickerRequest
-    private val decoder: Decoder by lazy { UriDecoder(activity.baseContext) }
+    private val decoder: Decoder by lazy { UriDecoder(activity.get()?.applicationContext) }
 
     private val filePickerLauncher =
-        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result?.data?.data?.let { processFile(it) }
         }
 
@@ -40,11 +41,11 @@ internal class StorageFilePicker(private val activity: AppCompatActivity) : File
     }
 
     private fun initialize() {
-        filePickerLauncher.launch(pickerRequest.intent)
+        filePickerLauncher?.launch(pickerRequest.intent)
     }
 
     private fun processFile(uri: Uri) {
-        activity.lifecycleScope.launch {
+        activity.get()?.lifecycleScope?.launchWhenResumed {
             pickerRequest.invokeCallback(uri)
         }
     }
