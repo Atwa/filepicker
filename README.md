@@ -1,7 +1,7 @@
 # FilePicker
 
-Android library to facilitate files picking up process and ability to convert them to request
-bodies.
+Android library to facilitate files and image picking up process whether from storage or camera and ability to convert them to request
+bodies without permission.
 
 **The goal of this app is to get rid of the hassle of file picking up handling and reduce effort
 made in uploading them to server without the need to ask use for a single permission.**
