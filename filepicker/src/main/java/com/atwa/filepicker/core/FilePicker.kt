@@ -44,8 +44,9 @@ interface FilePicker {
      *
      * Parameters:
      * @param onFilePicked Callback to receive the picker file result.
+     * @param initialDirectoryPath (Optional) initial directory to be opened for user to pick from.
      */
-    fun pickFile(onFilePicked: (FileMeta?) -> Unit)
+    fun pickFile(initialDirectoryPath:String? = null,onFilePicked: (FileMeta?) -> Unit)
 
     /**
      * launching intent for picking videos.

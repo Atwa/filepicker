@@ -1,7 +1,6 @@
 package com.atwa.filepicker.core
 
 import android.graphics.Bitmap
-import android.media.Image
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -9,15 +8,9 @@ import androidx.lifecycle.lifecycleScope
 import com.atwa.filepicker.decoder.Decoder
 import com.atwa.filepicker.decoder.UriDecoder
 import com.atwa.filepicker.request.*
-import com.atwa.filepicker.request.FilePickerRequest
-import com.atwa.filepicker.request.ImageCameraRequest
-import com.atwa.filepicker.request.ImagePickerRequest
-import com.atwa.filepicker.request.PdfPickerRequest
-import com.atwa.filepicker.request.PickerRequest
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
-import java.io.File
 import java.lang.ref.WeakReference
 
 internal class ActivityFilePicker(private val activity: WeakReference<AppCompatActivity>) : FilePicker {
@@ -51,8 +44,8 @@ internal class ActivityFilePicker(private val activity: WeakReference<AppCompatA
         initialize()
     }
 
-    override fun pickFile(onFilePicked: (FileMeta?) -> Unit) {
-        pickerRequest = FilePickerRequest(decoder, onFilePicked)
+    override fun pickFile(initialDirectoryPath: String?,onFilePicked: (FileMeta?) -> Unit) {
+        pickerRequest = FilePickerRequest(decoder, onFilePicked,initialDirectoryPath)
         initialize()
     }
 

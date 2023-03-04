@@ -57,8 +57,8 @@ internal class FragmentFilePicker(private val fragment: WeakReference<Fragment>)
         initialize()
     }
 
-    override fun pickFile(onFilePicked: (FileMeta?) -> Unit) {
-        pickerRequest = FilePickerRequest(decoder, onFilePicked)
+    override fun pickFile(initialDirectoryPath: String?,onFilePicked: (FileMeta?) -> Unit) {
+        pickerRequest = FilePickerRequest(decoder, onFilePicked,initialDirectoryPath)
         initialize()
     }
 
