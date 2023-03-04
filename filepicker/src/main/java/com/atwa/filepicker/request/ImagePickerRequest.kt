@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import com.atwa.filepicker.decoder.Decoder
+import com.atwa.filepicker.result.ImageMeta
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
@@ -12,7 +13,7 @@ import java.io.File
 
 internal class ImagePickerRequest(
     private val decoder: Decoder,
-    private val onImagePicked: (Pair<Bitmap?, File?>?) -> Unit
+    private val onImagePicked: (ImageMeta?) -> Unit
 ) : PickerRequest {
     override val intent: Intent
         get() = Intent(
@@ -21,7 +22,7 @@ internal class ImagePickerRequest(
         )
 
     override suspend fun invokeCallback(uri: Uri) {
-        var result: Pair<Bitmap?, File?>? = null
+        var result: ImageMeta? = null
         decoder.getStorageImage(uri).collect { result = it }
         withContext(Dispatchers.Main) {
             onImagePicked(result)

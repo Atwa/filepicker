@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.atwa.filepicker.decoder.Decoder
 import com.atwa.filepicker.decoder.UriDecoder
@@ -13,43 +14,56 @@ import com.atwa.filepicker.request.ImageCameraRequest
 import com.atwa.filepicker.request.ImagePickerRequest
 import com.atwa.filepicker.request.PdfPickerRequest
 import com.atwa.filepicker.request.PickerRequest
-import kotlinx.coroutines.launch
+import com.atwa.filepicker.result.FileMeta
+import com.atwa.filepicker.result.ImageMeta
+import com.atwa.filepicker.result.VideoMeta
 import java.io.File
 import java.lang.ref.WeakReference
 
-internal class StorageFilePicker(private val activity: WeakReference<AppCompatActivity>) : FilePicker {
+internal class FragmentFilePicker(private val fragment: WeakReference<Fragment>) : FilePicker {
 
     private lateinit var pickerRequest: PickerRequest
     private lateinit var cameraRequest: ImageCameraRequest
-    private val decoder: Decoder by lazy { UriDecoder(activity.get()?.applicationContext) }
+    private val decoder: Decoder by lazy {
+        UriDecoder(
+            fragment.get()?.requireActivity()?.applicationContext
+        )
+    }
 
     private val filePickerLauncher =
-        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            result?.data?.data?.let { processFile(it) }
-        }
+        fragment.get()
+            ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                result?.data?.data?.let { processFile(it) }
+            }
 
     private val cameraCaptureLauncher =
-        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            (result.data?.extras?.get("data") as? Bitmap)?.let { processBitmap(it) }
-        }
+        fragment.get()
+            ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                (result.data?.extras?.get("data") as? Bitmap)?.let { processBitmap(it) }
+            }
 
-    override fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
+    override fun pickImage(onImagePicked: (ImageMeta?) -> Unit) {
         pickerRequest = ImagePickerRequest(decoder, onImagePicked)
         initialize()
     }
 
-    override fun captureCameraImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit) {
+    override fun captureCameraImage(onImagePicked: (ImageMeta?) -> Unit) {
         cameraRequest = ImageCameraRequest(decoder, onImagePicked)
         cameraCaptureLauncher?.launch(cameraRequest.intent)
     }
 
-    override fun pickPdf(onPdfPicked: (Pair<String?, File?>?) -> Unit) {
+    override fun pickPdf(onPdfPicked: (FileMeta?) -> Unit) {
         pickerRequest = PdfPickerRequest(decoder, onPdfPicked)
         initialize()
     }
 
-    override fun pickFile(onFilePicked: (Pair<String?, File?>?) -> Unit) {
+    override fun pickFile(onFilePicked: (FileMeta?) -> Unit) {
         pickerRequest = FilePickerRequest(decoder, onFilePicked)
+        initialize()
+    }
+
+    override fun pickVideo(onVideoPicked: (VideoMeta?) -> Unit) {
+        pickerRequest = VideoPickerRequest(decoder, onVideoPicked)
         initialize()
     }
 
@@ -58,13 +72,13 @@ internal class StorageFilePicker(private val activity: WeakReference<AppCompatAc
     }
 
     private fun processFile(uri: Uri) {
-        activity.get()?.lifecycleScope?.launchWhenResumed {
+        fragment.get()?.lifecycleScope?.launchWhenResumed {
             pickerRequest.invokeCallback(uri)
         }
     }
 
     private fun processBitmap(bitmap: Bitmap) {
-        activity.get()?.lifecycleScope?.launchWhenResumed {
+        fragment.get()?.lifecycleScope?.launchWhenResumed {
             cameraRequest.invokeCameraCallback(bitmap)
         }
     }

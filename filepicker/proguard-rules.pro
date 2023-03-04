@@ -1,6 +1,7 @@
 
 -keep class com.atwa.filepicker.core.FilePicker
 -keep class com.atwa.filepicker.core.FileConverter
+-keep class com.atwa.filepicker.result.*
 
 -keep class com.atwa.filepicker.core.FilePicker$Companion { *; }
 -keep class com.atwa.filepicker.core.FileConverter$Companion { *; }

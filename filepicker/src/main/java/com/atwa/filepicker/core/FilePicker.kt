@@ -2,6 +2,10 @@ package com.atwa.filepicker.core
 
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.atwa.filepicker.result.FileMeta
+import com.atwa.filepicker.result.ImageMeta
+import com.atwa.filepicker.result.VideoMeta
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -9,43 +13,56 @@ interface FilePicker {
 
     /**
      * launching intent for picking image files.
-     * This method should be called from activity and the result will be provided in the callback.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
      * @param onImagePicked Callback to receive the picker image result.
      */
-    fun pickImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit)
+    fun pickImage(onImagePicked: (ImageMeta?) -> Unit)
 
     /**
      * launching intent for picking images from gallery.
-     * This method should be called from activity and the result will be provided in the callback.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
      * @param onImagePicked Callback to receive the picker gallery image result.
      */
-    fun captureCameraImage(onImagePicked: (Pair<Bitmap?, File?>?) -> Unit)
+    fun captureCameraImage(onImagePicked: (ImageMeta?) -> Unit)
 
     /**
      * launching intent for picking pdf files.
-     * This method should be called from activity and the result will be provided in the callback.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
      * @param onPdfPicked Callback to receive the picker pdf result.
      */
-    fun pickPdf(onPdfPicked: (Pair<String?, File?>?) -> Unit)
+    fun pickPdf(onPdfPicked: (FileMeta?) -> Unit)
 
     /**
      * launching intent for picking files.
-     * This method should be called from activity and the result will be provided in the callback.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
      * @param onFilePicked Callback to receive the picker file result.
      */
-    fun pickFile(onFilePicked: (Pair<String?, File?>?) -> Unit)
+    fun pickFile(onFilePicked: (FileMeta?) -> Unit)
+
+    /**
+     * launching intent for picking videos.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onVideoPicked Callback to receive the picker file result.
+     */
+    fun pickVideo(onVideoPicked: (VideoMeta?) -> Unit)
 
     companion object {
         @JvmStatic
         fun getInstance(activity: AppCompatActivity): FilePicker =
-            StorageFilePicker(WeakReference(activity))
+            ActivityFilePicker(WeakReference(activity))
+
+        @JvmStatic
+        fun getInstance(fragment: Fragment): FilePicker =
+            FragmentFilePicker(WeakReference(fragment))
     }
 }
