@@ -8,8 +8,10 @@ import android.graphics.BitmapFactory.decodeFileDescriptor
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.CancellationSignal
+import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.renderscript.ScriptGroup.Input
 import android.util.Size
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
@@ -34,124 +36,118 @@ internal class UriDecoder(
     override fun getStorageImage(imageUri: Uri?) = flow {
         uri = imageUri
         contentResolver = context?.contentResolver
-        val result = try {
-            decodeImage()
-        } catch (ex: IOException) {
-            println(ex.message)
-            null
-        }
-        emit(result)
+        decodeImage().also { emit(it) }
     }
 
     override fun getStoragePDF(pdfUri: Uri?) = flow {
         uri = pdfUri
         contentResolver = context?.contentResolver
-        val result = try {
-            decodeFile()
-        } catch (ex: IOException) {
-            println(ex.message)
-            null
-        }
-        emit(result)
+        decodeFile().also { emit(it) }
     }
 
     override fun getStorageFile(pdfUri: Uri?) = flow {
         uri = pdfUri
         contentResolver = context?.contentResolver
-        val result = try {
-            decodeFile()
-        } catch (ex: IOException) {
-            println(ex.message)
-            null
-        }
-        emit(result)
+        decodeFile().also { emit(it) }
     }
 
     override fun saveStorageImage(bitmap: Bitmap): Flow<ImageMeta?> = flow {
-        val result = try {
-            saveImageToFile(bitmap)
-        } catch (ex: IOException) {
-            println(ex.message)
-            null
-        }
-        emit(result)
+        saveImageToFile(bitmap).also { emit((it)) }
     }
 
     override fun getStorageVideo(videoUri: Uri?): Flow<VideoMeta?> = flow {
         uri = videoUri
         contentResolver = context?.contentResolver
-        val result = try {
-            decodeVideo()
-        } catch (ex: IOException) {
-            println(ex.message)
-            null
-        }
-        emit(result)
+        decodeVideo().also { emit(it) }
     }
 
-    private fun saveImageToFile(bitmap: Bitmap): ImageMeta {
-        val fileName = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
-        val imageFile = File(context?.cacheDir, fileName)
-        val size = imageFile.length().getFileSize()
+    private fun saveImageToFile(bitmap: Bitmap): ImageMeta? {
+        var byteStream: ByteArrayInputStream? = null
+        return try {
+            val fileName = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+            val imageFile = File(context?.cacheDir, fileName)
+            val size = imageFile.length().getFileSize()
 
-        val byteArray = (bitmap.allocationByteCount * bitmap.height).run {
-            ByteBuffer.allocate(this)
-        }.apply { bitmap.copyPixelsToBuffer(this) }.array()
+            val byteArray = (bitmap.allocationByteCount * bitmap.height).run {
+                ByteBuffer.allocate(this)
+            }.apply { bitmap.copyPixelsToBuffer(this) }.array()
+            byteStream = ByteArrayInputStream(byteArray)
+            val outputStream = FileOutputStream(imageFile)
 
-        val byteStream = ByteArrayInputStream(byteArray)
-        val outputStream = FileOutputStream(imageFile)
-
-        streamer.copyFile(byteStream, outputStream)
-        return ImageMeta(fileName, size, imageFile, bitmap)
+            streamer.copyFile(byteStream, outputStream)
+            ImageMeta(fileName, size, imageFile, bitmap)
+        } catch (e: Exception) {
+            println(e.message)
+            null
+        } finally {
+            byteStream?.close()
+        }
     }
 
     private fun decodeImage(): ImageMeta? {
-        return uri?.let { uri ->
-            contentResolver?.openFileDescriptor(uri, "r")?.let { pfd ->
-                val inputStream = FileInputStream(pfd.fileDescriptor)
-                val bitmap = decodeFileDescriptor(pfd.fileDescriptor)
-                val meta = getFileMeta() ?: Pair("file", null)
-                val imageFile = File(context?.cacheDir, meta.first)
-                val outputStream = FileOutputStream(imageFile)
-                streamer.copyFile(inputStream, outputStream)
-                pfd.close()
-                ImageMeta(meta.first, meta.second, imageFile, bitmap)
+        var pfd: ParcelFileDescriptor? = null
+        return try {
+            uri?.let { uri ->
+                pfd = contentResolver?.openFileDescriptor(uri, "r")
+                pfd?.let { fd ->
+                    val inputStream = FileInputStream(fd.fileDescriptor)
+                    val bitmap = decodeFileDescriptor(fd.fileDescriptor)
+                    val meta = getFileMeta() ?: Pair("file", null)
+                    val imageFile = File(context?.cacheDir, meta.first)
+                    val outputStream = FileOutputStream(imageFile)
+                    streamer.copyFile(inputStream, outputStream)
+                    ImageMeta(meta.first, meta.second, imageFile, bitmap)
+                }
             }
+        } catch (e: Exception) {
+            println(e.message)
+            null
+        } finally {
+            pfd?.close()
         }
     }
 
     private fun decodeVideo(): VideoMeta? {
-        return uri?.let { uri ->
-            contentResolver?.openFileDescriptor(uri, "r")?.let { pfd ->
-                val inputStream = FileInputStream(pfd.fileDescriptor)
-                val meta = getFileMeta() ?: Pair("file", null)
-                val videoFile = File(context?.cacheDir, meta.first)
+        var inputStream: InputStream? = null
+        return try {
+            uri?.let { uri ->
+                inputStream = contentResolver?.openInputStream(uri)
+                val fileName = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+                val videoFile = File(context?.cacheDir, fileName)
                 val outputStream = FileOutputStream(videoFile)
-                streamer.copyFile(inputStream, outputStream)
+                inputStream?.let { streamer.copyFile(it, outputStream) }
                 val preview = ThumbnailUtils.createVideoThumbnail(
                     videoFile.path,
                     MediaStore.Video.Thumbnails.MINI_KIND
                 )
-                pfd.close()
-                VideoMeta(meta.first, meta.second, videoFile, preview)
+                VideoMeta(fileName, videoFile.length().getFileSize(), videoFile, preview)
             }
+        } catch (e: Exception) {
+            println(e.message)
+            null
+        } finally {
+            inputStream?.close()
         }
     }
 
     private fun decodeFile(): FileMeta? {
+        var pfd: ParcelFileDescriptor? = null
         return try {
             uri?.let { pdfUri ->
-                val pfd = contentResolver?.openFileDescriptor(pdfUri, "r")
+                pfd = contentResolver?.openFileDescriptor(pdfUri, "r")
                 val inputStream = FileInputStream(pfd?.fileDescriptor)
                 val meta = getFileMeta() ?: Pair("file", null)
                 val pdfFile = File(context?.cacheDir, meta.first)
                 val outputStream = FileOutputStream(pdfFile)
                 streamer.copyFile(inputStream, outputStream)
-                pfd?.close()
                 FileMeta(meta.first, meta.second, pdfFile)
             }
         } catch (e: Exception) {
+            println(e.message)
             null
+        } finally {
+            pfd?.close()
+
         }
     }
 
