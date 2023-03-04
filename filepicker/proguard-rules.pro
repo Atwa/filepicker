@@ -12,6 +12,9 @@
 -keepclassmembers class com.atwa.filepicker.core.FileConverter {
      *;
  }
+ -keepclassmembers class com.atwa.filepicker.result.* {
+     *;
+  }
 
 -keepclasseswithmembernames class * {
     native <methods>;

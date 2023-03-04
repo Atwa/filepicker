@@ -7,5 +7,5 @@ data class VideoMeta (
     val name: String?,
     val sizeKb: Int?,
     val file: File?,
-    val preview: Bitmap?
+    val thumbnail: Bitmap?
 )
