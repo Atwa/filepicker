@@ -3,21 +3,14 @@ package com.atwa.filepicker.core
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.atwa.filepicker.decoder.Decoder
 import com.atwa.filepicker.decoder.UriDecoder
 import com.atwa.filepicker.request.*
-import com.atwa.filepicker.request.FilePickerRequest
-import com.atwa.filepicker.request.ImageCameraRequest
-import com.atwa.filepicker.request.ImagePickerRequest
-import com.atwa.filepicker.request.PdfPickerRequest
-import com.atwa.filepicker.request.PickerRequest
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
-import java.io.File
 import java.lang.ref.WeakReference
 
 internal class FragmentFilePicker(private val fragment: WeakReference<Fragment>) : FilePicker {
@@ -57,7 +50,12 @@ internal class FragmentFilePicker(private val fragment: WeakReference<Fragment>)
         initialize()
     }
 
-    override fun pickFile(initialDirectoryPath: String?,onFilePicked: (FileMeta?) -> Unit) {
+    override fun pickFile(onFilePicked: (FileMeta?) -> Unit) {
+        pickerRequest = FilePickerRequest(decoder, onFilePicked)
+        initialize()
+    }
+
+    override fun pickFile(initialDirectoryPath: String,onFilePicked: (FileMeta?) -> Unit) {
         pickerRequest = FilePickerRequest(decoder, onFilePicked,initialDirectoryPath)
         initialize()
     }

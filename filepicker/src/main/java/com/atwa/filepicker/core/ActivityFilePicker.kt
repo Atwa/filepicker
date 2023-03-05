@@ -44,7 +44,12 @@ internal class ActivityFilePicker(private val activity: WeakReference<AppCompatA
         initialize()
     }
 
-    override fun pickFile(initialDirectoryPath: String?,onFilePicked: (FileMeta?) -> Unit) {
+    override fun pickFile(onFilePicked: (FileMeta?) -> Unit) {
+        pickerRequest = FilePickerRequest(decoder, onFilePicked)
+        initialize()
+    }
+
+    override fun pickFile(initialDirectoryPath: String,onFilePicked: (FileMeta?) -> Unit) {
         pickerRequest = FilePickerRequest(decoder, onFilePicked,initialDirectoryPath)
         initialize()
     }

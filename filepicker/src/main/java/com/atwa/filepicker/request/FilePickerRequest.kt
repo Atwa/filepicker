@@ -14,7 +14,7 @@ import java.io.File
 internal class FilePickerRequest(
     private val decoder: Decoder,
     private val onFilePicked: (FileMeta?) -> Unit,
-    private val initialDirectoryPath: String?
+    private val initialDirectoryPath: String?=null
 ) : PickerRequest {
 
     private val fileType = "*/*"

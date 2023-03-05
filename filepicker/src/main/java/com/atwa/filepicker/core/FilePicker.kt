@@ -39,16 +39,6 @@ interface FilePicker {
     fun pickPdf(onPdfPicked: (FileMeta?) -> Unit)
 
     /**
-     * launching intent for picking files.
-     * This method should be called from activity/fragment and the result will be provided in the callback.
-     *
-     * Parameters:
-     * @param onFilePicked Callback to receive the picker file result.
-     * @param initialDirectoryPath (Optional) initial directory to be opened for user to pick from.
-     */
-    fun pickFile(initialDirectoryPath:String? = null,onFilePicked: (FileMeta?) -> Unit)
-
-    /**
      * launching intent for picking videos.
      * This method should be called from activity/fragment and the result will be provided in the callback.
      *
@@ -56,6 +46,25 @@ interface FilePicker {
      * @param onVideoPicked Callback to receive the picker file result.
      */
     fun pickVideo(onVideoPicked: (VideoMeta?) -> Unit)
+
+    /**
+     * launching intent for picking files.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onFilePicked Callback to receive the picker file result.
+     */
+    fun pickFile(onFilePicked: (FileMeta?) -> Unit)
+
+    /**
+     * launching intent for picking files with possible initial directory path.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onFilePicked Callback to receive the picker file result.
+     * @param initialDirectoryPath (Optional) initial directory to be opened for user to pick from.
+     */
+    fun pickFile(initialDirectoryPath:String,onFilePicked: (FileMeta?) -> Unit)
 
     companion object {
         @JvmStatic
