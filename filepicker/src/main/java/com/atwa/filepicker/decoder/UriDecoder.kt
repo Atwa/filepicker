@@ -62,26 +62,22 @@ internal class UriDecoder(
     }
 
     private fun saveImageToFile(bitmap: Bitmap): ImageMeta? {
-        var byteStream: ByteArrayInputStream? = null
+        var outputStream: FileOutputStream? = null
         return try {
             val fileName =
                 TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString().plus(".jpg")
             val imageFile = File(context?.cacheDir, fileName)
+
+            outputStream = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
             val size = imageFile.length().getFileSize()
-
-            val byteArray = (bitmap.allocationByteCount * bitmap.height).run {
-                ByteBuffer.allocate(this)
-            }.apply { bitmap.copyPixelsToBuffer(this) }.array()
-            byteStream = ByteArrayInputStream(byteArray)
-            val outputStream = FileOutputStream(imageFile)
-
-            streamer.copyFile(byteStream, outputStream)
             ImageMeta(fileName, size, imageFile, bitmap)
         } catch (e: Exception) {
             println(e.message)
             null
         } finally {
-            byteStream?.close()
+            outputStream?.close()
         }
     }
 
