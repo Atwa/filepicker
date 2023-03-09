@@ -64,7 +64,8 @@ internal class UriDecoder(
     private fun saveImageToFile(bitmap: Bitmap): ImageMeta? {
         var byteStream: ByteArrayInputStream? = null
         return try {
-            val fileName = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+            val fileName =
+                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString().plus(".jpg")
             val imageFile = File(context?.cacheDir, fileName)
             val size = imageFile.length().getFileSize()
 
@@ -112,7 +113,8 @@ internal class UriDecoder(
         return try {
             uri?.let { uri ->
                 inputStream = contentResolver?.openInputStream(uri)
-                val fileName = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+                val fileName =
+                    TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString().plus(".mp4")
                 val videoFile = File(context?.cacheDir, fileName)
                 val outputStream = FileOutputStream(videoFile)
                 inputStream?.let { streamer.copyFile(it, outputStream) }

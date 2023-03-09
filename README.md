@@ -117,6 +117,7 @@ made in uploading them to server without the need to ask use for a single permis
 | 1.0.3   | Fix bug : LifecycleOwner Activity is attempting to register while current state is RESUMED.                                                         |
 | 1.0.4   | Enhancement : Avoid possible activity reference leaking.  <br /> Feature : Implement camera image picker.                                           |
 | 1.0.5   | Feature : Support fragments.  <br /> Feature : Implement file picking from initial directory. <br /> fix : obsolete app icon unintended overriding. |
+| 1.0.6   | Enhancement : Add file extension to video files and images picked from camera.                                                                      |
   
 
 
