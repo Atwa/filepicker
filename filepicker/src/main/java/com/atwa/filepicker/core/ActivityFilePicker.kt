@@ -1,33 +1,71 @@
 package com.atwa.filepicker.core
 
-import android.graphics.Bitmap
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.atwa.filepicker.BuildConfig
 import com.atwa.filepicker.decoder.Decoder
 import com.atwa.filepicker.decoder.UriDecoder
 import com.atwa.filepicker.request.*
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
+import java.io.File
+import java.io.IOException
 import java.lang.ref.WeakReference
+
 
 internal class ActivityFilePicker(private val activity: WeakReference<AppCompatActivity>) : FilePicker {
 
     private lateinit var pickerRequest: PickerRequest
-    private lateinit var cameraRequest: ImageCameraRequest
+    private lateinit var imageCameraRequest: ImageCameraRequest
+
     private val decoder: Decoder by lazy { UriDecoder(activity.get()?.applicationContext) }
 
-    private val filePickerLauncher =
-        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            result?.data?.data?.let { processFile(it) }
+    private val filePickerLauncher = activity.get()
+        ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            result?.data?.data?.let { processFile(it,pickerRequest) }
         }
 
-    private val cameraCaptureLauncher =
-        activity.get()?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            (result.data?.extras?.get("data") as? Bitmap)?.let { processBitmap(it) }
+    private val cameraCaptureLauncher = activity.get()
+        ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            imageCameraRequest.photoURI?.let { processFile(it, imageCameraRequest) }
         }
+
+    private fun initializeCameraRequest(context: Context, onImagePicked: (ImageMeta?) -> Unit) {
+        imageCameraRequest = ImageCameraRequest(decoder, onImagePicked).apply {
+            try {
+                createImageFile(context)
+            } catch (ex: IOException) {
+                null
+            }?.also { file ->
+                photoURI = FileProvider.getUriForFile(
+                    context,
+                    "${BuildConfig.LIBRARY_PACKAGE_NAME}.provider",
+                    file
+                )
+            }
+
+        }
+    }
+
+    fun observeLifeCycle() {
+        activity.get()?.lifecycle?.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    activity.get()?.lifecycle?.removeObserver(this)
+                    activity.clear()
+                }
+            }
+        })
+    }
 
     override fun pickImage(onImagePicked: (ImageMeta?) -> Unit) {
         pickerRequest = ImagePickerRequest(decoder, onImagePicked)
@@ -35,8 +73,13 @@ internal class ActivityFilePicker(private val activity: WeakReference<AppCompatA
     }
 
     override fun captureCameraImage(onImagePicked: (ImageMeta?) -> Unit) {
-        cameraRequest = ImageCameraRequest(decoder, onImagePicked)
-        cameraCaptureLauncher?.launch(cameraRequest.intent)
+        activity.get()?.applicationContext?.let { context ->
+            observeLifeCycle()
+            initializeCameraRequest(context, onImagePicked)
+            imageCameraRequest.intent.let { intent ->
+                cameraCaptureLauncher?.launch(intent)
+            }
+        }
     }
 
     override fun pickPdf(onPdfPicked: (FileMeta?) -> Unit) {
@@ -60,18 +103,13 @@ internal class ActivityFilePicker(private val activity: WeakReference<AppCompatA
     }
 
     private fun initialize() {
+        observeLifeCycle()
         filePickerLauncher?.launch(pickerRequest.intent)
     }
 
-    private fun processFile(uri: Uri) {
+    private fun processFile(uri: Uri, request: PickerRequest) {
         activity.get()?.lifecycleScope?.launchWhenResumed {
-            pickerRequest.invokeCallback(uri)
-        }
-    }
-
-    private fun processBitmap(bitmap: Bitmap) {
-        activity.get()?.lifecycleScope?.launchWhenResumed {
-            cameraRequest.invokeCameraCallback(bitmap)
+            request.invokeCallback(uri)
         }
     }
 
