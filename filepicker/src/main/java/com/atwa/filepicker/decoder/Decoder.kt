@@ -11,6 +11,6 @@ internal interface Decoder {
     fun getStorageImage(imageUri: Uri?): Flow<ImageMeta?>
     fun getStoragePDF(pdfUri: Uri?): Flow<FileMeta?>
     fun getStorageFile(pdfUri: Uri?): Flow<FileMeta?>
-    fun saveStorageImage(bitmap: Bitmap): Flow<ImageMeta?>
     fun getStorageVideo(videoUri: Uri?): Flow<VideoMeta?>
+    fun getCameraImage(imageUri: Uri?): Flow<ImageMeta?>
 }

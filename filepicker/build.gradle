@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -19,10 +19,12 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
+            debuggable true
         }
     }
     compileOptions {
@@ -44,7 +46,7 @@ afterEvaluate {
 
                 groupId = 'com.github.atwa'
                 artifactId = 'filepicker'
-                version = '1.0.7'
+                version = '1.0.8'
             }
         }
         repositories {

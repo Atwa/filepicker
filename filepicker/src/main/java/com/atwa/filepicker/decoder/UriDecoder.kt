@@ -3,16 +3,12 @@ package com.atwa.filepicker.decoder
 import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeFileDescriptor
 import android.media.ThumbnailUtils
 import android.net.Uri
-import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.OpenableColumns
-import android.renderscript.ScriptGroup.Input
-import android.util.Size
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
@@ -21,7 +17,6 @@ import com.atwa.filepicker.stream.Streamer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.*
-import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 
 
@@ -39,6 +34,12 @@ internal class UriDecoder(
         decodeImage().also { emit(it) }
     }
 
+    override fun getCameraImage(imageUri: Uri?) = flow {
+        uri = imageUri
+        contentResolver = context?.contentResolver
+        decodeCameraImage().also { emit(it) }
+    }
+
     override fun getStoragePDF(pdfUri: Uri?) = flow {
         uri = pdfUri
         contentResolver = context?.contentResolver
@@ -51,34 +52,10 @@ internal class UriDecoder(
         decodeFile().also { emit(it) }
     }
 
-    override fun saveStorageImage(bitmap: Bitmap): Flow<ImageMeta?> = flow {
-        saveImageToFile(bitmap).also { emit((it)) }
-    }
-
     override fun getStorageVideo(videoUri: Uri?): Flow<VideoMeta?> = flow {
         uri = videoUri
         contentResolver = context?.contentResolver
         decodeVideo().also { emit(it) }
-    }
-
-    private fun saveImageToFile(bitmap: Bitmap): ImageMeta? {
-        var outputStream: FileOutputStream? = null
-        return try {
-            val fileName =
-                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString().plus(".jpg")
-            val imageFile = File(context?.cacheDir, fileName)
-
-            outputStream = FileOutputStream(imageFile)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-            val size = imageFile.length().getFileSize()
-            ImageMeta(fileName, size, imageFile, bitmap)
-        } catch (e: Exception) {
-            println(e.message)
-            null
-        } finally {
-            outputStream?.close()
-        }
     }
 
     private fun decodeImage(): ImageMeta? {
@@ -104,13 +81,37 @@ internal class UriDecoder(
         }
     }
 
+    private fun decodeCameraImage(): ImageMeta? {
+        var pfd: ParcelFileDescriptor? = null
+        return try {
+            uri?.let { uri ->
+                pfd = contentResolver?.openFileDescriptor(uri, "r")
+                pfd?.let { fd ->
+                    val originalBitmap = decodeFileDescriptor(fd.fileDescriptor)
+                    val bitmap = BitmapRotation(context?.contentResolver, uri)
+                        .run { rotateAccordingToOrientation(originalBitmap) }
+                    val meta = getFileMeta() ?: Pair("file", null)
+                    val imageFile = File(context?.cacheDir, meta.first)
+                    ImageMeta(meta.first, meta.second, imageFile, bitmap)
+                }
+            }
+        } catch (e: Exception) {
+            println(e.message)
+            null
+        } finally {
+            pfd?.close()
+        }
+    }
+
+
     private fun decodeVideo(): VideoMeta? {
         var inputStream: InputStream? = null
         return try {
             uri?.let { uri ->
                 inputStream = contentResolver?.openInputStream(uri)
                 val fileName =
-                    TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString().plus(".mp4")
+                    TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+                        .plus(".mp4")
                 val videoFile = File(context?.cacheDir, fileName)
                 val outputStream = FileOutputStream(videoFile)
                 inputStream?.let { streamer.copyFile(it, outputStream) }
