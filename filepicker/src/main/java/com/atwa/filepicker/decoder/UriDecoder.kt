@@ -1,72 +1,93 @@
 package com.atwa.filepicker.decoder
 
 import android.annotation.SuppressLint
-import android.content.ContentResolver
 import android.content.Context
 import android.graphics.BitmapFactory.decodeFileDescriptor
 import android.media.ThumbnailUtils
 import android.net.Uri
+import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import androidx.core.content.FileProvider
+import com.atwa.filepicker.BuildConfig
+import com.atwa.filepicker.core.Executors
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
 import com.atwa.filepicker.stream.FileStreamer
 import com.atwa.filepicker.stream.Streamer
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import java.io.*
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
 
 internal class UriDecoder(
     private val context: Context?,
-    private val streamer: Streamer = FileStreamer()
+    private val handler: Handler? = null,
+    private val streamer: Streamer = FileStreamer(),
+    private val executor: Executor = Executors.executor,
 ) : Decoder {
 
-    private var uri: Uri? = null
-    private var contentResolver: ContentResolver? = null
+    private val contentResolver by lazy { context?.contentResolver }
 
-    override fun getStorageImage(imageUri: Uri?) = flow {
-        uri = imageUri
-        contentResolver = context?.contentResolver
-        decodeImage().also { emit(it) }
+    override fun createFile(): Uri? = try {
+        context?.let {
+            val timeStamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
+            val file = File.createTempFile(timeStamp, ".jpg", context.cacheDir)
+            FileProvider.getUriForFile(
+                it,
+                "${BuildConfig.LIBRARY_PACKAGE_NAME}.provider",
+                file
+            )
+        }
+    } catch (ex: IOException) {
+        null
     }
 
-    override fun getCameraImage(imageUri: Uri?) = flow {
-        uri = imageUri
-        contentResolver = context?.contentResolver
-        decodeCameraImage().also { emit(it) }
+    override fun getStorageImage(imageUri: Uri?, onImagePicked: (ImageMeta?) -> Unit) =
+        executor.execute {
+            decodeImage(imageUri).also {
+                handler?.post { onImagePicked(it) }
+            }
+        }
+
+    override fun getCameraImage(imageUri: Uri?, onImagePicked: (ImageMeta?) -> Unit) =
+        executor.execute {
+            decodeCameraImage(imageUri).also {
+                handler?.post { onImagePicked(it) }
+            }
+        }
+
+    override fun getStoragePDF(pdfUri: Uri?, onPdfPicked: (FileMeta?) -> Unit) = executor.execute {
+        decodeFile(pdfUri).also {
+            handler?.post { onPdfPicked(it) }
+        }
     }
 
-    override fun getStoragePDF(pdfUri: Uri?) = flow {
-        uri = pdfUri
-        contentResolver = context?.contentResolver
-        decodeFile().also { emit(it) }
-    }
+    override fun getStorageFile(fileUri: Uri?, onFilePicked: (FileMeta?) -> Unit) =
+        executor.execute {
+            decodeFile(fileUri).also {
+                handler?.post { onFilePicked(it) }
+            }
+        }
 
-    override fun getStorageFile(pdfUri: Uri?) = flow {
-        uri = pdfUri
-        contentResolver = context?.contentResolver
-        decodeFile().also { emit(it) }
-    }
+    override fun getStorageVideo(videoUri: Uri?, onVideoPicked: (VideoMeta?) -> Unit) =
+        executor.execute {
+            decodeVideo(videoUri).also {
+                handler?.post { onVideoPicked(it) }
+            }
+        }
 
-    override fun getStorageVideo(videoUri: Uri?): Flow<VideoMeta?> = flow {
-        uri = videoUri
-        contentResolver = context?.contentResolver
-        decodeVideo().also { emit(it) }
-    }
-
-    private fun decodeImage(): ImageMeta? {
+    private fun decodeImage(uri: Uri?): ImageMeta? {
         var pfd: ParcelFileDescriptor? = null
         return try {
-            uri?.let { uri ->
+            uri?.let {
                 pfd = contentResolver?.openFileDescriptor(uri, "r")
                 pfd?.let { fd ->
                     val inputStream = FileInputStream(fd.fileDescriptor)
                     val bitmap = decodeFileDescriptor(fd.fileDescriptor)
-                    val meta = getFileMeta() ?: Pair("file", null)
+                    val meta = getFileMeta(uri) ?: Pair("file", null)
                     val imageFile = File(context?.cacheDir, meta.first)
                     val outputStream = FileOutputStream(imageFile)
                     streamer.copyFile(inputStream, outputStream)
@@ -81,16 +102,16 @@ internal class UriDecoder(
         }
     }
 
-    private fun decodeCameraImage(): ImageMeta? {
+    private fun decodeCameraImage(uri: Uri?): ImageMeta? {
         var pfd: ParcelFileDescriptor? = null
         return try {
-            uri?.let { uri ->
+            uri?.let {
                 pfd = contentResolver?.openFileDescriptor(uri, "r")
                 pfd?.let { fd ->
                     val originalBitmap = decodeFileDescriptor(fd.fileDescriptor)
                     val bitmap = BitmapRotation(context?.contentResolver, uri)
                         .run { rotateAccordingToOrientation(originalBitmap) }
-                    val meta = getFileMeta() ?: Pair("file", null)
+                    val meta = getFileMeta(uri) ?: Pair("file", null)
                     val imageFile = File(context?.cacheDir, meta.first)
                     ImageMeta(meta.first, meta.second, imageFile, bitmap)
                 }
@@ -104,10 +125,10 @@ internal class UriDecoder(
     }
 
 
-    private fun decodeVideo(): VideoMeta? {
+    private fun decodeVideo(uri: Uri?): VideoMeta? {
         var inputStream: InputStream? = null
         return try {
-            uri?.let { uri ->
+            uri?.let {
                 inputStream = contentResolver?.openInputStream(uri)
                 val fileName =
                     TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
@@ -129,13 +150,13 @@ internal class UriDecoder(
         }
     }
 
-    private fun decodeFile(): FileMeta? {
+    private fun decodeFile(uri: Uri?): FileMeta? {
         var pfd: ParcelFileDescriptor? = null
         return try {
-            uri?.let { pdfUri ->
-                pfd = contentResolver?.openFileDescriptor(pdfUri, "r")
+            uri?.let {
+                pfd = contentResolver?.openFileDescriptor(uri, "r")
                 val inputStream = FileInputStream(pfd?.fileDescriptor)
-                val meta = getFileMeta() ?: Pair("file", null)
+                val meta = getFileMeta(uri) ?: Pair("file", null)
                 val pdfFile = File(context?.cacheDir, meta.first)
                 val outputStream = FileOutputStream(pdfFile)
                 streamer.copyFile(inputStream, outputStream)
@@ -151,29 +172,27 @@ internal class UriDecoder(
     }
 
     @SuppressLint("Range")
-    private fun getFileMeta(): Pair<String, Int?>? {
-        return uri?.let { uri ->
-            var result: Pair<String, Int?>? = null
-            if (uri.scheme == "content") {
-                val cursor = contentResolver?.query(uri, null, null, null, null)
-                if (cursor != null && cursor.moveToFirst()) {
-                    val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    val size =
-                        cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE)).getFileSize()
-                    result = Pair(name ?: "file", size)
-                    cursor.close()
-                }
+    private fun getFileMeta(uri: Uri): Pair<String, Int?>? {
+        var result: Pair<String, Int?>? = null
+        if (uri.scheme == "content") {
+            val cursor = contentResolver?.query(uri, null, null, null, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                val size =
+                    cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE)).getFileSize()
+                result = Pair(name ?: "file", size)
+                cursor.close()
             }
-            if (result == null) {
-                val path = uri.path
-                val cut = path?.lastIndexOf('/')
-                if (cut != -1) {
-                    val name = path?.substring(cut?.plus(1) ?: 0)
-                    result = Pair(name ?: "file", null)
-                }
-            }
-            result
         }
+        if (result == null) {
+            val path = uri.path
+            val cut = path?.lastIndexOf('/')
+            if (cut != -1) {
+                val name = path?.substring(cut?.plus(1) ?: 0)
+                result = Pair(name ?: "file", null)
+            }
+        }
+        return result
     }
 
 }

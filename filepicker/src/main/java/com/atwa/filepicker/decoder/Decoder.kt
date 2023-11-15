@@ -1,16 +1,15 @@
 package com.atwa.filepicker.decoder
 
-import android.graphics.Bitmap
 import android.net.Uri
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
-import kotlinx.coroutines.flow.Flow
 
-internal interface Decoder {
-    fun getStorageImage(imageUri: Uri?): Flow<ImageMeta?>
-    fun getStoragePDF(pdfUri: Uri?): Flow<FileMeta?>
-    fun getStorageFile(pdfUri: Uri?): Flow<FileMeta?>
-    fun getStorageVideo(videoUri: Uri?): Flow<VideoMeta?>
-    fun getCameraImage(imageUri: Uri?): Flow<ImageMeta?>
+interface Decoder {
+    fun createFile(): Uri?
+    fun getStorageImage(imageUri: Uri?, onImagePicked: (ImageMeta?) -> Unit)
+    fun getStoragePDF(pdfUri: Uri?, onPdfPicked: (FileMeta?) -> Unit)
+    fun getStorageFile(fileUri: Uri?, onFilePicked: (FileMeta?) -> Unit)
+    fun getStorageVideo(videoUri: Uri?, onVideoPicked: (VideoMeta?) -> Unit)
+    fun getCameraImage(imageUri: Uri?, onImagePicked: (ImageMeta?) -> Unit)
 }
