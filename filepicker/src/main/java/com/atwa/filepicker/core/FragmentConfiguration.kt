@@ -14,6 +14,12 @@ import java.lang.ref.WeakReference
 class FragmentConfiguration(private val fragment: WeakReference<Fragment>) :
     PickerConfiguration {
 
+    var callback: ((uri: Uri?) -> Unit)? = null
+    private val launcher = fragment.get()
+        ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            callback?.invoke(result?.data?.data)
+        }
+
     override val lifecycle = fragment.get()?.lifecycle
     override val lifecycleScope = fragment.get()?.lifecycleScope
     override val decoder: Decoder by lazy {
@@ -24,11 +30,8 @@ class FragmentConfiguration(private val fragment: WeakReference<Fragment>) :
     }
 
     override fun Intent.onPick(callback: (uri: Uri?) -> Unit) {
-        fragment.get()
-            ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                callback(result?.data?.data)
-            }
-            ?.launch(this)
+        this@FragmentConfiguration.callback = callback
+        launcher?.launch(this)
     }
 
     override fun clear() {

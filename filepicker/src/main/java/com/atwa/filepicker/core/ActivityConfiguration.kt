@@ -15,6 +15,12 @@ class ActivityConfiguration(
     private val activity: WeakReference<AppCompatActivity>,
 ) : PickerConfiguration {
 
+    private var callback: ((uri: Uri?) -> Unit)? = null
+    private val launcher = activity.get()
+        ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            callback?.invoke(result?.data?.data)
+        }
+
     override val lifecycle = activity.get()?.lifecycle
     override val lifecycleScope = activity.get()?.lifecycleScope
     override val decoder: Decoder by lazy {
@@ -22,11 +28,8 @@ class ActivityConfiguration(
     }
 
     override fun Intent.onPick(callback: (uri: Uri?) -> Unit) {
-        activity.get()
-            ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                callback(result?.data?.data)
-            }
-            ?.launch(this)
+        this@ActivityConfiguration.callback = callback
+        launcher?.launch(this)
     }
 
     override fun clear() {
