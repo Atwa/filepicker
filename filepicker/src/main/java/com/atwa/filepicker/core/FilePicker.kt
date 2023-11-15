@@ -1,12 +1,10 @@
 package com.atwa.filepicker.core
 
-import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
-import java.io.File
 import java.lang.ref.WeakReference
 
 interface FilePicker {
@@ -69,10 +67,10 @@ interface FilePicker {
     companion object {
         @JvmStatic
         fun getInstance(activity: AppCompatActivity): FilePicker =
-            ActivityFilePicker(WeakReference(activity))
+            FilePickerProcessor(ActivityConfiguration(WeakReference(activity)))
 
         @JvmStatic
         fun getInstance(fragment: Fragment): FilePicker =
-            FragmentFilePicker(WeakReference(fragment))
+            FilePickerProcessor(FragmentConfiguration(WeakReference(fragment)))
     }
 }
