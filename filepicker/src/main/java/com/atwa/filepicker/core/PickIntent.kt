@@ -12,7 +12,14 @@ object PickIntent {
         )
     }
 
-    internal val captureIntent by lazy { Intent(MediaStore.ACTION_IMAGE_CAPTURE) }
+    internal val captureIntent
+        get() =
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                addFlags(
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION and
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            }
 
     internal val pdfIntent by lazy {
         Intent(Intent.ACTION_GET_CONTENT).apply {
