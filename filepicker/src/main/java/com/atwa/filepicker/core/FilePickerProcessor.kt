@@ -42,7 +42,7 @@ class FilePickerProcessor(private val configuration: PickerConfiguration) : File
 
     override fun captureCameraImage(onImagePicked: (ImageMeta?) -> Unit) {
         with(configuration) {
-            val photoURI = decoder.createFile()
+            val photoURI = decoder.generateURI()
             captureIntent.apply { putExtra(MediaStore.EXTRA_OUTPUT, photoURI) }.onPick {
                 decoder.getCameraImage(photoURI, onImagePicked)
             }

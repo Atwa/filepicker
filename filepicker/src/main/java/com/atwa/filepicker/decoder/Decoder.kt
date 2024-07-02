@@ -6,7 +6,7 @@ import com.atwa.filepicker.result.ImageMeta
 import com.atwa.filepicker.result.VideoMeta
 
 interface Decoder {
-    fun createFile(): Uri?
+    fun generateURI(): Uri?
     fun getStorageImage(imageUri: Uri?, onImagePicked: (ImageMeta?) -> Unit)
     fun getStoragePDF(pdfUri: Uri?, onPdfPicked: (FileMeta?) -> Unit)
     fun getStorageFile(fileUri: Uri?, onFilePicked: (FileMeta?) -> Unit)

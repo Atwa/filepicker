@@ -10,7 +10,6 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
-import com.atwa.filepicker.BuildConfig
 import com.atwa.filepicker.core.Executors
 import com.atwa.filepicker.result.FileMeta
 import com.atwa.filepicker.result.ImageMeta
@@ -31,13 +30,13 @@ internal class UriDecoder(
 
     private val contentResolver by lazy { context?.contentResolver }
 
-    override fun createFile(): Uri? = try {
+    override fun generateURI(): Uri? = try {
         context?.let {
             val timeStamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
             val file = File.createTempFile(timeStamp, ".jpg", context.cacheDir)
             FileProvider.getUriForFile(
                 it,
-                "${BuildConfig.LIBRARY_PACKAGE_NAME}.provider",
+                "${context.packageName}.provider",
                 file
             )
         }
