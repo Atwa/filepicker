@@ -30,10 +30,11 @@ internal class UriDecoder(
 
     private val contentResolver by lazy { context?.contentResolver }
 
-    override fun generateURI(): Uri? = try {
+    override fun generateURI(isImageFile: Boolean): Uri? = try {
         context?.let {
             val timeStamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString()
-            val file = File.createTempFile(timeStamp, ".jpg", context.cacheDir)
+            val fileSuffix = if (isImageFile) ".jpg" else ".mp4"
+            val file = File.createTempFile(timeStamp, fileSuffix, context.cacheDir)
             FileProvider.getUriForFile(
                 it,
                 "${context.packageName}.provider",
@@ -51,6 +52,16 @@ internal class UriDecoder(
             }
         }
 
+    override fun getStorageImages(
+        imageUris: List<Uri>,
+        onImagesPicked: (List<ImageMeta?>) -> Unit,
+    ) = executor.execute {
+        imageUris.map { uri -> decodeImage(uri) }.also { uriList ->
+            handler?.post { onImagesPicked(uriList) }
+        }
+    }
+
+
     override fun getCameraImage(imageUri: Uri?, onImagePicked: (ImageMeta?) -> Unit) =
         executor.execute {
             decodeCameraImage(imageUri).also {
@@ -58,16 +69,31 @@ internal class UriDecoder(
             }
         }
 
-    override fun getStoragePDF(pdfUri: Uri?, onPdfPicked: (FileMeta?) -> Unit) = executor.execute {
-        decodeFile(pdfUri).also {
-            handler?.post { onPdfPicked(it) }
+    override fun getCameraVideo(videoUri: Uri?, onVideoPicked: (VideoMeta?) -> Unit) =
+        executor.execute {
+            decodeCameraVideo(videoUri).also {
+                handler?.post { onVideoPicked(it) }
+            }
         }
-    }
+
+    override fun getStoragePDF(pdfUri: Uri?, onPdfPicked: (FileMeta?) -> Unit) =
+        executor.execute {
+            decodeFile(pdfUri).also {
+                handler?.post { onPdfPicked(it) }
+            }
+        }
 
     override fun getStorageFile(fileUri: Uri?, onFilePicked: (FileMeta?) -> Unit) =
         executor.execute {
             decodeFile(fileUri).also {
                 handler?.post { onFilePicked(it) }
+            }
+        }
+
+    override fun getStorageFiles(fileUris: List<Uri>, onFilesPicked: (List<FileMeta?>) -> Unit) =
+        executor.execute {
+            fileUris.map { uri -> decodeFile(uri) }.also { uriList ->
+                handler?.post { onFilesPicked(uriList) }
             }
         }
 
@@ -123,6 +149,23 @@ internal class UriDecoder(
         }
     }
 
+    private fun decodeCameraVideo(uri: Uri?): VideoMeta? {
+        return try {
+            uri?.let {
+                val meta = getFileMeta(uri) ?: Pair("file", null)
+                val videoFile = File(context?.cacheDir, meta.first)
+
+                val preview = ThumbnailUtils.createVideoThumbnail(
+                    videoFile.path,
+                    MediaStore.Video.Thumbnails.MINI_KIND
+                )
+                VideoMeta(meta.first, videoFile.length().getFileSize(), videoFile, preview)
+            }
+        } catch (e: Exception) {
+            println(e.message)
+            null
+        }
+    }
 
     private fun decodeVideo(uri: Uri?): VideoMeta? {
         var inputStream: InputStream? = null
