@@ -27,7 +27,7 @@ made in uploading them to server without the need to ask use for a single permis
 
   ```
   dependencies {
-	    implementation 'com.github.atwa:filepicker:1.0.7'
+	    implementation 'com.github.atwa:filepicker:2.0.0'
 	}
   ```
 
