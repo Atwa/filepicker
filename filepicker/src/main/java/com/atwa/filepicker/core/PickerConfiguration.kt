@@ -8,8 +8,8 @@ import com.atwa.filepicker.decoder.Decoder
 
 interface PickerConfiguration {
     val lifecycle: Lifecycle?
-    val lifecycleScope: LifecycleCoroutineScope?
     val decoder: Decoder
     fun Intent.onPick(callback: (uri: Uri?) -> Unit)
+    fun Intent.onMultiPick(callback: (uri: List<Uri?>) -> Unit)
     fun clear()
 }

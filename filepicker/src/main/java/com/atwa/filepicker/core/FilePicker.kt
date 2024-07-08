@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference
 interface FilePicker {
 
     /**
-     * launching intent for picking image files.
+     * launching intent for picking image file.
      * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
@@ -19,13 +19,31 @@ interface FilePicker {
     fun pickImage(onImagePicked: (ImageMeta?) -> Unit)
 
     /**
-     * launching intent for picking images from gallery.
+     * launching intent for picking multiple image files at once.
      * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
-     * @param onImagePicked Callback to receive the picker gallery image result.
+     * @param onImagesPicked Callback to receive the picker images result.
+     */
+    fun pickMultiImage(onImagesPicked: (List<ImageMeta?>) -> Unit)
+
+    /**
+     * launching intent for capturing images using device's camera.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onImagePicked Callback to receive the camera captured image result.
      */
     fun captureCameraImage(onImagePicked: (ImageMeta?) -> Unit)
+
+    /**
+     * launching intent for capturing videos using device's camera.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onVideoPicked Callback to receive the camera captured video result.
+     */
+    fun captureCameraVideo(onVideoPicked: (VideoMeta?) -> Unit)
 
     /**
      * launching intent for picking pdf files.
@@ -55,14 +73,83 @@ interface FilePicker {
     fun pickFile(onFilePicked: (FileMeta?) -> Unit)
 
     /**
-     * launching intent for picking files with possible initial directory path.
+     * launching intent for picking files filtered by a particular MIME type.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param mimeType MIME type to filter file types.
+     * @param onFilePicked Callback to receive the picker file result.
+     */
+    fun pickMimeFile(mimeType: String, onFilePicked: (FileMeta?) -> Unit)
+
+    /**
+     * launching intent for picking files with initial directory path.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param initialDirectoryPath initial directory to be opened for user to pick from.
+     * @param onFilePicked Callback to receive the picker file result.
+     */
+    fun pickPathFile(initialDirectoryPath: String, onFilePicked: (FileMeta?) -> Unit)
+
+    /**
+     * launching intent for picking files with initial directory path and filtered with MIME type.
      * This method should be called from activity/fragment and the result will be provided in the callback.
      *
      * Parameters:
      * @param onFilePicked Callback to receive the picker file result.
+     * @param mimeType MIME type to filter file types.
+     * @param initialDirectoryPath initial directory to be opened for user to pick from.
+     */
+
+    fun pickFile(initialDirectoryPath: String, mimeType: String, onFilePicked: (FileMeta?) -> Unit)
+
+
+    /**
+     * launching intent for picking multiple files.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onFilesPicked Callback to receive the picker multiple files result.
+     */
+    fun pickMultiFiles(onFilesPicked: (List<FileMeta?>) -> Unit)
+
+    /**
+     * launching intent for picking multiple files filtered by a particular MIME type.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param mimeType MIME type to filter file types.
+     * @param onFilesPicked Callback to receive the picker file result.
+     */
+    fun pickMultiMimeFiles(mimeType: String, onFilesPicked: (List<FileMeta?>) -> Unit)
+
+    /**
+     * launching intent for picking multiple files with initial directory path.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param initialDirectoryPath initial directory to be opened for user to pick from.
+     * @param onFilesPicked Callback to receive the picker file result.
+     */
+    fun pickMultiPathFiles(initialDirectoryPath: String, onFilesPicked: (List<FileMeta?>) -> Unit)
+
+
+    /**
+     * launching intent for picking multiple files with initial directory path and filtered with MIME type.
+     * This method should be called from activity/fragment and the result will be provided in the callback.
+     *
+     * Parameters:
+     * @param onFilesPicked Callback to receive the picker file result.
+     * @param mimeType MIME type to filter file types.
      * @param initialDirectoryPath (Optional) initial directory to be opened for user to pick from.
      */
-    fun pickFile(initialDirectoryPath:String,onFilePicked: (FileMeta?) -> Unit)
+
+    fun pickMultiFiles(
+        initialDirectoryPath: String,
+        mimeType: String,
+        onFilesPicked: (List<FileMeta?>) -> Unit,
+    )
 
     companion object {
         @JvmStatic
