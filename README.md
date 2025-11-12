@@ -275,7 +275,7 @@ For Jetpack Compose projects use the following dependency instead:
   }
   ```
 ## Demo :
-[▶️ Watch demo video](https://github.com/Atwa/filepicker/blob/master/demo.mp4)
+[▶️ Watch demo video](https://www.youtube.com/shorts/SXDLDbrCZmE)
 
 ### Version history
 
