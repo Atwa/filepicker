@@ -22,4 +22,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "filepicker"
-include ':filepicker'
+include ':picker'
+include ':picker-compose'
+include ':core'
+include ':result'
