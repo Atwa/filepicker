@@ -43,6 +43,9 @@ android {
     }
 }
 
+version = rootProject.properties["sdkVersion"] as String
+
+
 publishing {
     publications {
         create<MavenPublication>("release") {
@@ -51,7 +54,7 @@ publishing {
             }
             groupId = "com.github.atwa"
             artifactId = "filepicker-compose"
-            version = "3.1.0"
+            version = version
         }
     }
     repositories {

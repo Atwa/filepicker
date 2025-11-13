@@ -29,7 +29,7 @@ made in uploading them to server without the need to ask use for a single permis
 
   ```
   dependencies {
-	    implementation 'com.github.atwa:filepicker:3.0.0'
+	    implementation 'com.github.atwa:filepicker:3.2.0'
 	}
   ```
 
@@ -37,7 +37,7 @@ For Jetpack Compose projects use the following dependency instead:
 
   ```
   dependencies {
-        implementation 'com.github.atwa:filepicker-compose:3.0.0'
+        implementation 'com.github.atwa:filepicker-compose:3.2.0'
     }
   ```
 
@@ -292,13 +292,13 @@ For Jetpack Compose projects use the following dependency instead:
 | 1.0.9   | Refactor : Replaced coroutines by Executor & Handler.     <br /> Update : Updated compileSdk to 34.                                                                                                                                                                                                     |
 | 1.0.10  | Fix bug : capture image issue for the second time.     <br /> Fix bug : installing multiple apps using the library on the same device.         <br /> Close issue : https://github.com/Atwa/filepicker/issues/25                                                                                        |  
 | 2.0.0   | Feature : Filter files with MIME type. closes issue https://github.com/Atwa/filepicker/issues/14  <br /> Feature : Support multipicker. closes issue https://github.com/Atwa/filepicker/issues/19 <br /> Feature : Capture video from camera. closes issue https://github.com/Atwa/filepicker/issues/23 |  
-| 2.1.0   | Feature : OnProgress callback for continuous progress updates while reading/picking large files https://github.com/Atwa/filepicker/issues/33 <br /> Enhancement : Increase buffer size for faster file streaming and decoding.                                                                          |  
+| 3.2.0   | Feature : OnProgress callback for continuous progress updates while reading/picking large files https://github.com/Atwa/filepicker/issues/33 <br /> Enhancement : Increase buffer size for faster file streaming and decoding.                                                                          |  
 
 ### Compose Version history
 
 | Version | Release note                        |
 |---------|-------------------------------------|
-| 3.1.0   | Initial support for Jetpack compose |    
+| 3.2.0   | Initial support for Jetpack compose |    
 
 ### Contribution
 

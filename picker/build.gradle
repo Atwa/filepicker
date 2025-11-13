@@ -40,6 +40,7 @@ android {
     }
 }
 
+version = rootProject.properties["sdkVersion"] as String
 
 
 afterEvaluate {
@@ -50,7 +51,7 @@ afterEvaluate {
 
                 groupId = 'com.github.atwa'
                 artifactId = 'filepicker'
-                version = '3.1.0'
+                version = version
             }
         }
         repositories {

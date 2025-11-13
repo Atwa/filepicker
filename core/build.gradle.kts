@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
 }
 
 android {
@@ -28,6 +29,32 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+    }
+}
+
+version = rootProject.properties["sdkVersion"] as String
+
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["release"])
+            }
+            groupId = "com.github.atwa"
+            artifactId = "filepicker-core"
+            version = version
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Atwa/filepicker")
+            credentials {
+                username = System.getenv("GITHUB_USER_NAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
 
