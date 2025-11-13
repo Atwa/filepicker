@@ -29,7 +29,7 @@ made in uploading them to server without the need to ask use for a single permis
 
   ```
   dependencies {
-	    implementation 'com.github.atwa:filepicker:2.1.0'
+	    implementation 'com.github.atwa:filepicker:3.0.0'
 	}
   ```
 
@@ -37,7 +37,7 @@ For Jetpack Compose projects use the following dependency instead:
 
   ```
   dependencies {
-        implementation 'com.github.atwa:filepicker-compose:1.0.0'
+        implementation 'com.github.atwa:filepicker-compose:2.0.0'
     }
   ```
 
@@ -298,7 +298,7 @@ For Jetpack Compose projects use the following dependency instead:
 
 | Version | Release note                        |
 |---------|-------------------------------------|
-| 1.0.0   | Initial support for Jetpack compose |    
+| 2.0.0   | Initial support for Jetpack compose |    
 
 ### Contribution
 
