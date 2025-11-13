@@ -51,7 +51,7 @@ afterEvaluate {
 
                 groupId = "com.github.atwa"
                 artifactId = "filepicker-compose"
-                version = "2.0.0-SNAPSHOT"
+                version = "2.0.0"
             }
         }
         repositories {
@@ -69,7 +69,7 @@ afterEvaluate {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":result"))
+    api(project(":result"))
     implementation(platform("androidx.compose:compose-bom:2025.11.00"))
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.activity:activity-compose:1.11.0")

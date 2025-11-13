@@ -50,7 +50,7 @@ afterEvaluate {
 
                 groupId = 'com.github.atwa'
                 artifactId = 'filepicker'
-                version = '3.0.0-SNAPSHOT'
+                version = '3.0.0'
             }
         }
         repositories {
@@ -68,7 +68,7 @@ afterEvaluate {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":result"))
+    api(project(":result"))
     implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.4'
