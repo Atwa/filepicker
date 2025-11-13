@@ -43,25 +43,24 @@ android {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            afterEvaluate {
                 from(components["release"])
-
-                groupId = "com.github.atwa"
-                artifactId = "filepicker-compose"
-                version = "2.0.0"
             }
+            groupId = "com.github.atwa"
+            artifactId = "filepicker-compose"
+            version = "3.0.0"
         }
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/Atwa/filepicker")
-                credentials {
-                    username = System.getenv("GITHUB_USER_NAME")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Atwa/filepicker")
+            credentials {
+                username = System.getenv("GITHUB_USER_NAME")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
