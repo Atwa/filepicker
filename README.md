@@ -298,7 +298,7 @@ For Jetpack Compose projects use the following dependency instead:
 
 | Version | Release note                        |
 |---------|-------------------------------------|
-| 3.0.0   | Initial support for Jetpack compose |    
+| 3.1.0   | Initial support for Jetpack compose |    
 
 ### Contribution
 
