@@ -33,14 +33,6 @@ made in uploading them to server without the need to ask use for a single permis
 	}
   ```
 
-For Jetpack Compose projects use the following dependency instead:
-
-  ```
-  dependencies {
-        implementation 'com.github.atwa:filepicker-compose:3.2.0'
-    }
-  ```
-
 ## Usage :
 
 - Initialize instance in activity/fragment as member variable.
